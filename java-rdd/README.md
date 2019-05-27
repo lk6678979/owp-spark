@@ -2,7 +2,7 @@
 ## 1.创建RDD
 ### 1.1使用已存在的集合创建RDD（自己创建数据生成RDD）[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Parallelize.java)   
 #### 1.1.1  parallelize（使用集合创建RDD）
-`` 源码API ``
+* 源码API
 ```scala
 //根据List创建RDD，numSlices：分区数
 def parallelize[T](list : java.util.List[T], numSlices : scala.Int) : org.apache.spark.api.java.JavaRDD[T] = { /* compiled code */ }
