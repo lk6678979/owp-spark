@@ -1,7 +1,6 @@
 # SPARK的JAVA版API案例
 ## 1.创建RDD
-### 1.1使用已存在的集合创建RDD（自己创建数据生成RDD）[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Parallelize.java)   
-#### 1.1.1  parallelize（使用集合创建RDD）
+### 1.1使用已存在的集合创建RDD（自己创建数据生成RDD）
 * 源码API
 ```scala
 //根据List创建RDD，numSlices：分区数
@@ -17,7 +16,8 @@ def parallelizeDoubles(list : java.util.List[java.lang.Double], numSlices : scal
 //根据List<Double>创建Double数据类型的RDD
 def parallelizeDoubles(list : java.util.List[java.lang.Double]) : org.apache.spark.api.java.JavaDoubleRDD = { /* compiled code */ }
 ```
-** JAVA API
+#### 1.1.1  parallelize（使用集合创建RDD）[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Parallelize.java)   
+* JAVA API
 ```java
 @Test
     //使用集合创建RDD
@@ -38,6 +38,33 @@ def parallelizeDoubles(list : java.util.List[java.lang.Double]) : org.apache.spa
         JavaRDD<String> words = rdd.flatMap(e -> Arrays.asList(e.split(" ")).iterator());
         //将RDD的数据组装成对
         JavaPairRDD<String, Integer> wordAndOne = words.mapToPair(e -> new Tuple2<>(e, 1));
+        //将成对的数据进行聚合
+        JavaPairRDD<String, Integer> wordReduced = wordAndOne.reduceByKey((integer, integer2) -> integer + integer2);
+        //java只支持按照key进行排序,我们先将Paer中kv呼唤
+        JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
+        //使用key排序
+        JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
+        javaSparkContext.stop();
+    }
+```
+#### 1.1.2  parallelizePairs（使用集合创建PairRDD）[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/ParallelizePairs.java)   
+* JAVA API
+```java
+@Test
+    public void parallelizePairs() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        List<Tuple2<String, Integer>> tuples = new ArrayList<>();
+        tuples.add(new Tuple2("2220", 1));
+        tuples.add(new Tuple2("2220", 1));
+        tuples.add(new Tuple2("435345", 1));
+        tuples.add(new Tuple2("212312220", 1));
+        tuples.add(new Tuple2("2220", 1));
+        tuples.add(new Tuple2("224353420", 1));
+        tuples.add(new Tuple2("2213213120", 1));
+        //将RDD的数据组装成对
+        JavaPairRDD<String, Integer> wordAndOne = javaSparkContext.parallelizePairs(tuples, 3);
         //将成对的数据进行聚合
         JavaPairRDD<String, Integer> wordReduced = wordAndOne.reduceByKey((integer, integer2) -> integer + integer2);
         //java只支持按照key进行排序,我们先将Paer中kv呼唤
