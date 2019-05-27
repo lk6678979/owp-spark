@@ -18,7 +18,7 @@ def parallelizeDoubles(list : java.util.List[java.lang.Double]) : org.apache.spa
 #### 1.1.1 parallelize（使用集合创建RDD）[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Parallelize.java)   
 * JAVA API
 ```java
-@Test
+    @Test
     //使用集合创建RDD
     public void parallelize() {
         SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
@@ -50,7 +50,7 @@ def parallelizeDoubles(list : java.util.List[java.lang.Double]) : org.apache.spa
 #### 1.1.2 parallelizePairs（使用集合创建PairRDD）[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/ParallelizePairs.java)   
 * JAVA API
 ```java
-@Test
+    @Test
     public void parallelizePairs() {
         SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
         JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
@@ -90,7 +90,7 @@ def textFile(path : scala.Predef.String, minPartitions : scala.Int) : org.apache
 ```
 * JAVA API
 ```java
- @Test
+    @Test
     //textFile使用外部存储创建PairRDD
     public void textFile() {
         SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
