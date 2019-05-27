@@ -17,7 +17,7 @@ def parallelizeDoubles(list : java.util.List[java.lang.Double], numSlices : scal
 //根据List<Double>创建Double数据类型的RDD
 def parallelizeDoubles(list : java.util.List[java.lang.Double]) : org.apache.spark.api.java.JavaDoubleRDD = { /* compiled code */ }
 ```
-##### JAVA API
+** JAVA API
 ```java
 @Test
     //使用集合创建RDD
