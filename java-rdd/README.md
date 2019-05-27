@@ -1,6 +1,6 @@
 # SPARK的JAVA版API案例
 ## 1.创建RDD
-### 1.1使用已存在的集合创建RDD（自己创建数据生成RDD）
+### 1.1使用已存在的集合创建RDD（自己创建数据生成RDD）[JAVA API DEMO------->:](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Parallelize.java)   
 #### 1.1.1  parallelize（使用集合创建RDD）
 ##### 源码API
 ```scala
@@ -48,4 +48,3 @@ def parallelizeDoubles(list : java.util.List[java.lang.Double]) : org.apache.spa
         javaSparkContext.stop();
     }
 ```
-[前往JAVA API DEMO-------------->:](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Parallelize.java)   
