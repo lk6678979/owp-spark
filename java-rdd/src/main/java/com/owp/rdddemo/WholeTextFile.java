@@ -17,9 +17,9 @@ public class WholeTextFile {
     public void wholeTextFile() {
         SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
         JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
-//        JavaPairRDD<String,String> rdd = javaSparkContext.wholeTextFiles("C:\\Users\\liukai\\Desktop\\90\\111");
-        JavaPairRDD<String, String> rdd = javaSparkContext.wholeTextFiles("C:\\Users\\liukai\\Desktop\\90\\111", 2);
-        rdd.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\111\\lkk.txt");
+//        JavaPairRDD<String,String> rdd = javaSparkContext.wholeTextFiles("C:\\Users\\xxx\\Desktop\\90\\111");
+        JavaPairRDD<String, String> rdd = javaSparkContext.wholeTextFiles("C:\\Users\\xxx\\Desktop\\90\\111", 2);
+        rdd.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\111\\lkk.txt");
         javaSparkContext.stop();
     }
 }

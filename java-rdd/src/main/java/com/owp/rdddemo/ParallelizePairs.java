@@ -38,7 +38,7 @@ public class ParallelizePairs {
         JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo2.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
         javaSparkContext.stop();
     }
 }

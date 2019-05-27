@@ -35,7 +35,7 @@ public class Checkpoint {
         JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo2.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
         long oneTime = System.currentTimeMillis();
         System.out.println("第一次处理耗时：" + (oneTime - startTime));
 
@@ -49,7 +49,7 @@ public class Checkpoint {
         JavaPairRDD<Integer, String> swaped2 = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted2 = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo22.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo22.log");
         long twoTime = System.currentTimeMillis();
         System.out.println("第二次处理耗时：" + (twoTime - oneTime));
         javaSparkContext.stop();

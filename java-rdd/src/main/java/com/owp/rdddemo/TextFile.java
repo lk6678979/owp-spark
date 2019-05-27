@@ -23,7 +23,7 @@ public class TextFile {
         SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
         JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
 //        JavaRDD<String> rdd = javaSparkContext.textFile("C:\\local\\es-*");
-        JavaRDD<String> rdd = javaSparkContext.textFile("C:\\Users\\liukai\\Desktop\\90\\111\\222", 2);
+        JavaRDD<String> rdd = javaSparkContext.textFile("C:\\Users\\xxx\\Desktop\\90\\111\\222", 2);
 //        JavaRDD<String> rdd = javaSparkContext.textFile("C:\\local\\es-*,C:\\local\\zs-*");
         //获取所有字（空格分隔的字）
         JavaRDD<String> words = rdd.flatMap(e -> Arrays.asList(e.split(" ")).iterator());
@@ -35,7 +35,7 @@ public class TextFile {
         JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo2.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
         javaSparkContext.stop();
     }
 }

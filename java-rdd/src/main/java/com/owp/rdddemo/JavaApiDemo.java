@@ -52,7 +52,7 @@ public class JavaApiDemo implements Serializable {
         JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo2.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
         javaSparkContext.stop();
     }
 
@@ -78,7 +78,7 @@ public class JavaApiDemo implements Serializable {
         JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo2.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
         javaSparkContext.stop();
     }
 
@@ -89,7 +89,7 @@ public class JavaApiDemo implements Serializable {
         SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
         JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
 //        JavaRDD<String> rdd = javaSparkContext.textFile("C:\\local\\es-*");
-        JavaRDD<String> rdd = javaSparkContext.textFile("C:\\Users\\liukai\\Desktop\\90\\111\\222", 2);
+        JavaRDD<String> rdd = javaSparkContext.textFile("C:\\Users\\xxx\\Desktop\\90\\111\\222", 2);
 //        JavaRDD<String> rdd = javaSparkContext.textFile("C:\\local\\es-*,C:\\local\\zs-*");
         //获取所有字（空格分隔的字）
         JavaRDD<String> words = rdd.flatMap(e -> Arrays.asList(e.split(" ")).iterator());
@@ -101,7 +101,7 @@ public class JavaApiDemo implements Serializable {
         JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo2.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
         javaSparkContext.stop();
     }
 
@@ -110,9 +110,9 @@ public class JavaApiDemo implements Serializable {
     public void wholeTextFile() {
         SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
         JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
-//        JavaPairRDD<String,String> rdd = javaSparkContext.wholeTextFiles("C:\\Users\\liukai\\Desktop\\90\\111");
-        JavaPairRDD<String, String> rdd = javaSparkContext.wholeTextFiles("C:\\Users\\liukai\\Desktop\\90\\111", 2);
-        rdd.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\111\\lkk.txt");
+//        JavaPairRDD<String,String> rdd = javaSparkContext.wholeTextFiles("C:\\Users\\xxx\\Desktop\\90\\111");
+        JavaPairRDD<String, String> rdd = javaSparkContext.wholeTextFiles("C:\\Users\\xxx\\Desktop\\90\\111", 2);
+        rdd.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\111\\lkk.txt");
         javaSparkContext.stop();
     }
 
@@ -495,7 +495,7 @@ public class JavaApiDemo implements Serializable {
         JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo2.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
         long oneTime = System.currentTimeMillis();
         System.out.println("第一次处理耗时：" + (oneTime - startTime));
 
@@ -509,7 +509,7 @@ public class JavaApiDemo implements Serializable {
         JavaPairRDD<Integer, String> swaped2 = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted2 = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo22.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo22.log");
         long twoTime = System.currentTimeMillis();
         System.out.println("第二次处理耗时：" + (twoTime - oneTime));
         javaSparkContext.stop();
@@ -533,7 +533,7 @@ public class JavaApiDemo implements Serializable {
         JavaPairRDD<Integer, String> swaped = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo2.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo2.log");
         long oneTime = System.currentTimeMillis();
         System.out.println("第一次处理耗时：" + (oneTime - startTime));
 
@@ -547,7 +547,7 @@ public class JavaApiDemo implements Serializable {
         JavaPairRDD<Integer, String> swaped2 = wordReduced.mapToPair(stringIntegerTuple2 -> stringIntegerTuple2.swap());
         //使用key排序
         JavaPairRDD<Integer, String> sorted2 = swaped.sortByKey();
-        sorted.saveAsTextFile("C:\\Users\\liukai\\Desktop\\90\\baseInfo22.log");
+        sorted.saveAsTextFile("C:\\Users\\xxx\\Desktop\\90\\baseInfo22.log");
         long twoTime = System.currentTimeMillis();
         System.out.println("第二次处理耗时：" + (twoTime - oneTime));
         javaSparkContext.stop();
