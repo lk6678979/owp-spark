@@ -22,7 +22,7 @@ private[spark] class HadoopPartition(rddId : scala.Int, override val index : sca
   def getPipeEnvVars() : scala.collection.immutable.Map[scala.Predef.String, scala.Predef.String] = { /* compiled code */ }
 }
 ```
-## 3. 编码测试：
+## 3. 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Partitions.java) 
 ```java
 SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
 JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
