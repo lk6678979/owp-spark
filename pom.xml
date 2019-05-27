@@ -10,6 +10,7 @@
     <description>Spark相关Demo</description>
     <modules>
         <module>java-rdd</module>
+        <module>springboot-spark</module>
     </modules>
     <packaging>pom</packaging>
 
