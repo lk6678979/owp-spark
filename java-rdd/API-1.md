@@ -1,4 +1,4 @@
-## map，flatMap，filter，mapPartitons，mapToPair，flatMapToPair
+## API：map，flatMap，filter，mapPartitons，mapToPair，flatMapToPair
 ### 1. map方法如下：
 * 源码API
 ```scala
