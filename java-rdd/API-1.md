@@ -44,6 +44,7 @@ def flatMapToPair[K2, V2](f : org.apache.spark.api.java.function.PairFlatMapFunc
 * flatMapToDouble：返回的RDD中的对象是Double类型
 * flatMapToPair：返回的PairRdd
 ### 3. filter方法如下：
+* 源码API
 ```scala
 def filter(f : org.apache.spark.api.java.function.Function[T, java.lang.Boolean]) : org.apache.spark.api.java.JavaRDD[T] = { /* compiled code */ }
 ```
@@ -59,8 +60,8 @@ def filter(f : org.apache.spark.api.java.function.Function[T, java.lang.Boolean]
     }
 ```
 * 使用filter中的函数过滤数据，只有函数结果返回true的值才会放入新的RDD中
-
 ### 4. mapPartitions方法如下：
+* 源码API
 ```scala
 def mapPartitions[U](f : org.apache.spark.api.java.function.FlatMapFunction[java.util.Iterator[T], U]) : org.apache.spark.api.java.JavaRDD[U] = { /* compiled code */ }
 def mapPartitions[U](f : org.apache.spark.api.java.function.FlatMapFunction[java.util.Iterator[T], U], preservesPartitioning : scala.Boolean) : org.apache.spark.api.java.JavaRDD[U] = { /* compiled code */ }
@@ -92,6 +93,7 @@ def mapPartitionsWithIndex[R](f : org.apache.spark.api.java.function.Function2[j
 * mapPartitions比较适合需要分批处理数据的情况，比如将数据插入某个表，每批数据只需要开启一次数据库连接，大大减少了连接开支
 * mapPartitionsWithIndex：操作和mapPartitions类似，只是函数的输入参数多了一个分区索引
 ### 5. mapToPail方法如下：
+* 源码API
 ```scala
 def mapToPair[K2, V2](f : org.apache.spark.api.java.function.PairFunction[T, K2, V2]) : org.apache.spark.api.java.JavaPairRDD[K2, V2] = { /* compiled code */ }
 ```
@@ -107,6 +109,5 @@ def mapToPair[K2, V2](f : org.apache.spark.api.java.function.PairFunction[T, K2,
         System.out.println("mapToPail后：" + RDD2.collect());
     }
  ```
-
 ### 6. flatMapToPair
 * 和flatmap类似，只不过返回的是Tuple2对象，RDD是PairRdd
