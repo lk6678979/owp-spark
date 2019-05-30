@@ -116,12 +116,127 @@ def reduceByKey(partitioner : org.apache.spark.Partitioner, func : org.apache.sp
 def reduceByKeyLocally(func : org.apache.spark.api.java.function.Function2[V, V, V]) : java.util.Map[K, V] = { /* compiled code */ }
 ```
 * func：同一K的所有V合并函数
-  #### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/FoldByKey.java) 
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/ReduceByKey.java) 
 ```java
-JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
-JavaPairRDD<String, String> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, String>(s, s+"1"));
-JavaPairRDD<String, String> RDD3 = RDD2.reduceByKey((s1,s2)->s1+"_"+s2);
-System.out.println("reduceByKey：" + RDD3.collect());
+    @Test
+    public void reduceByKey() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, String> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, String>(s, s + "1"));
+        JavaPairRDD<String, String> RDD3 = RDD2.reduceByKey((s1, s2) -> s1 + "_" + s2);
+        System.out.println("reduceByKey：" + RDD3.collect());
+    }
 ---------------------------结果----------------------
 [(6,61_61), (3,31), (4,41_41), (7,71), (1,11), (8,81), (2,21)]
 ```
+### 8. groupByKey（基于combineByKey实现）：
+* 源码API:
+```scala
+def groupByKey() : org.apache.spark.api.java.JavaPairRDD[K, java.lang.Iterable[V]] = { /* compiled code */ }
+def groupByKey(partitioner : org.apache.spark.Partitioner) : org.apache.spark.api.java.JavaPairRDD[K, java.lang.Iterable[V]] = { /* compiled code */ }
+def groupByKey(numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, java.lang.Iterable[V]] = { /* compiled code */ }
+```
+* groupByKey会将RDD[key,value] 按照相同的key进行分组，形成RDD[key,Iterable[value]]的形式， 有点类似于sql中的groupby，例如类似于mysql中的group_concat 
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/GroupByKey.java) 
+```java
+    @Test
+    public void groupByKey() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, Integer> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, Integer>(s, 1));
+        JavaPairRDD<String, Iterable<Integer>> RDD3 = RDD2.groupByKey();
+        System.out.println("groupByKey：" + RDD3.collect());
+    }
+---------------结果----------------------
+[(6,[1, 1]), (3,[1]), (4,[1, 1]), (7,[1]), (1,[1]), (8,[1]), (2,[1])]
+```
+### 9. sortByKey（基于combineByKey实现）：
+* 源码API:
+```scala
+def sortByKey() : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def sortByKey(ascending : scala.Boolean) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def sortByKey(ascending : scala.Boolean, numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def sortByKey(comp : java.util.Comparator[K]) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def sortByKey(comp : java.util.Comparator[K], ascending : scala.Boolean) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def sortByKey(comp : java.util.Comparator[K], ascending : scala.Boolean, numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+```
+* SortByKey用于对pairRDD按照key进行排序，第一个参数可以设置true或者false，默认是true 
+* comp :排序计算函数
+* ascending：true：升序排列（默认），false：降序排列
+* 注意：序列化问题,这里api中是需要实现java的java.util.Comparator,但是这个接口没有实现序列化，我们需要自己写一个实现类去实现java.util.Comparator同时实现序列化，注意序列化的类如果私用java的java.io.Serializable有时候会报错，可以使用scala的scala.Serializable 
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/SortByKey.java) 
+```java
+     @Test
+    public void sortByKey() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, Integer> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, Integer>(s, 1));
+        class SecondaryComparator implements Comparator<String>, Serializable {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareTo(o2);
+            }
+        }
+        System.out.println("排序前分区数：" + RDD2.partitions().size());
+        JavaPairRDD<String, Integer> RDD3 = RDD2.sortByKey(new SecondaryComparator(), true, 1);
+        System.out.println("排序后分区数：" + RDD3.partitions().size());
+        System.out.println("sortByKey：" + RDD3.collect());
+    }
+--------------结果------------------------------
+[(1,1), (2,1), (3,1), (4,1), (4,1), (6,1), (6,1), (7,1), (8,1)]
+```
+### 10. cogroup：
+* 源码API:
+```scala
+def cogroup[W](other : org.apache.spark.api.java.JavaPairRDD[K, W], partitioner : org.apache.spark.Partitioner) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[java.lang.Iterable[V], java.lang.Iterable[W]]] = { /* compiled code */ }
+def cogroup[W1, W2](other1 : org.apache.spark.api.java.JavaPairRDD[K, W1], other2 : org.apache.spark.api.java.JavaPairRDD[K, W2], partitioner : org.apache.spark.Partitioner) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple3[java.lang.Iterable[V], java.lang.Iterable[W1], java.lang.Iterable[W2]]] = { /* compiled code */ }
+def cogroup[W1, W2, W3](other1 : org.apache.spark.api.java.JavaPairRDD[K, W1], other2 : org.apache.spark.api.java.JavaPairRDD[K, W2], other3 : org.apache.spark.api.java.JavaPairRDD[K, W3], partitioner : org.apache.spark.Partitioner) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple4[java.lang.Iterable[V], java.lang.Iterable[W1], java.lang.Iterable[W2], java.lang.Iterable[W3]]] = { /* compiled code */ }
+def cogroup[W](other : org.apache.spark.api.java.JavaPairRDD[K, W]) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[java.lang.Iterable[V], java.lang.Iterable[W]]] = { /* compiled code */ }
+def cogroup[W1, W2](other1 : org.apache.spark.api.java.JavaPairRDD[K, W1], other2 : org.apache.spark.api.java.JavaPairRDD[K, W2]) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple3[java.lang.Iterable[V], java.lang.Iterable[W1], java.lang.Iterable[W2]]] = { /* compiled code */ }
+def cogroup[W1, W2, W3](other1 : org.apache.spark.api.java.JavaPairRDD[K, W1], other2 : org.apache.spark.api.java.JavaPairRDD[K, W2], other3 : org.apache.spark.api.java.JavaPairRDD[K, W3]) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple4[java.lang.Iterable[V], java.lang.Iterable[W1], java.lang.Iterable[W2], java.lang.Iterable[W3]]] = { /* compiled code */ }
+def cogroup[W](other : org.apache.spark.api.java.JavaPairRDD[K, W], numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[java.lang.Iterable[V], java.lang.Iterable[W]]] = { /* compiled code */ }
+def cogroup[W1, W2](other1 : org.apache.spark.api.java.JavaPairRDD[K, W1], other2 : org.apache.spark.api.java.JavaPairRDD[K, W2], numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple3[java.lang.Iterable[V], java.lang.Iterable[W1], java.lang.Iterable[W2]]] = { /* compiled code */ }
+def cogroup[W1, W2, W3](other1 : org.apache.spark.api.java.JavaPairRDD[K, W1], other2 : org.apache.spark.api.java.JavaPairRDD[K, W2], other3 : org.apache.spark.api.java.JavaPairRDD[K, W3], numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple4[java.lang.Iterable[V], java.lang.Iterable[W1], java.lang.Iterable[W2], java.lang.Iterable[W3]]] = { /* compiled code */ }
+```
+* groupByKey是对单个 RDD 的数据进行分组，还可以使用一个叫作 cogroup() 的函数对多个共享同一个键的 RDD 进行分组 
+* 例如 RDD1.cogroup(RDD2) 会将RDD1和RDD2按照相同的key进行分组，得到(key,RDD[key,Iterable[value1],Iterable[value2]])的形式 
+cogroup也可以多个进行分组 
+* 例如RDD1.cogroup(RDD2,RDD3,…RDDN), 可以得到(key,Iterable[value1],Iterable[value2],Iterable[value3],…,Iterable[valueN]) 
+* 案例,scoreDetail存放的是学生的优秀学科的分数，scoreDetai2存放的是刚刚及格的分数，scoreDetai3存放的是没有及格的科目的分数，我们要对每一个学生的优秀学科，刚及格和不及格的分数给分组统计出来 
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Cogroup.java) 
+```java
+     @Test
+    public void cogroup() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<Tuple2<String, Float>> scoreDetails1 = javaSparkContext.parallelize(Arrays.asList(new Tuple2("xiaoming", 75)
+                , new Tuple2("xiaoming", 90)
+                , new Tuple2("lihua", 95)
+                , new Tuple2("lihua", 96)));
+        JavaRDD<Tuple2<String, Float>> scoreDetails2 = javaSparkContext.parallelize(Arrays.asList(new Tuple2("xiaoming", 75)
+                , new Tuple2("lihua", 60)
+                , new Tuple2("lihua", 62)));
+        JavaRDD<Tuple2<String, Float>> scoreDetails3 = javaSparkContext.parallelize(Arrays.asList(new Tuple2("xiaoming", 75)
+                , new Tuple2("xiaoming", 45)
+                , new Tuple2("lihua", 24)
+                , new Tuple2("lihua", 57)));
+
+        JavaPairRDD<String, Float> scoreMapRDD1 = JavaPairRDD.fromJavaRDD(scoreDetails1);
+        JavaPairRDD<String, Float> scoreMapRDD2 = JavaPairRDD.fromJavaRDD(scoreDetails2);
+        JavaPairRDD<String, Float> scoreMapRDD3 = JavaPairRDD.fromJavaRDD(scoreDetails2);
+        JavaPairRDD<String, Tuple3<Iterable<Float>, Iterable<Float>, Iterable<Float>>> cogroupRDD = scoreMapRDD1.cogroup(scoreMapRDD2, scoreMapRDD3);
+        Map<String, Tuple3<Iterable<Float>, Iterable<Float>, Iterable<Float>>> tuple3 = (Map<String, Tuple3<Iterable<Float>, Iterable<Float>, Iterable<Float>>>) cogroupRDD.collectAsMap();
+        for (String key : tuple3.keySet()) {
+            System.out.println("数据：(" + key + ", " + tuple3.get(key) + ")");
+        }
+    }
+---------------------------结果--------------------------------
+(lihua, ([95, 96],[60, 62],[60, 62]))
+(xiaoming, ([75, 90],[75],[75]))
+```
+出参说明：
+* 1.出参是一个JavaPairRDD，K是RDD中的K
+* 2.value是一个Tuple对象，在sacala中Tuple对象可以存N个值，对应的类我TupleN，在这个Tuple中，每个参与cogroup计算的RDD，会按照入参的先后顺序，列出和K对应的所有值的Iterable对象，当然调用该方法的RDD肯定是放在第一个
