@@ -78,3 +78,50 @@ def combineByKey[C](createCombiner : org.apache.spark.api.java.function.Function
 * ⭐mergeCombiner：前两个方法是实现分区内部的相同Key值的数据合并，而这个方法主要用于分区间的相同Key值的数据合并，形成最终的结果。
 * partitioner：指定分区函数
 * numPartitions：指定分区数
+* 说明：最后返回的K是遍历所有K后留下的不重复的K，原RDD重复的K会被上面3个方法整合成一个K，主要是对同一个K的V进行首次创建、分区内计算合并、分区之间计算合并
+### 6. foldByKey：
+* 源码API:
+```scala
+def foldByKey(zeroValue : V, partitioner : org.apache.spark.Partitioner, func : org.apache.spark.api.java.function.Function2[V, V, V]) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def foldByKey(zeroValue : V, numPartitions : scala.Int, func : org.apache.spark.api.java.function.Function2[V, V, V]) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def foldByKey(zeroValue : V, func : org.apache.spark.api.java.function.Function2[V, V, V]) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+```
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/FoldByKey.java) 
+```java
+    @Test
+    public void foldByKey() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, String> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, String>(s, s + "1"));
+        JavaPairRDD<String, String> RDD3 = RDD2.foldByKey("start", (s1, s2) -> s1 + "_" + s2);
+        System.out.println("foldByKey：" + RDD3.collect());
+    }
+------------------结果---------------
+[(6,start_61_start_61), (3,start_31), (4,start_41_41), (7,start_71), (1,start_11), (8,start_81), (2,start_21)]
+```
+* 该函数用于RDD[K,V]根据K将V做折叠、合并处理，其中的参数zeroValue表示先根据映射函数将zeroValue应用于V,进行初始化V,再将映射函数应用于初始化后的V
+* foldByKey开始折叠的第一个元素不是集合中的第一个元素，而是传入的一个元素 
+* zeroValue:每个K的初始值
+* partitioner：分区函数
+* numPartitions：分区数
+* func：重复K的V值计算函数，第一个入参是K当前的V，第二个入参是当前遍历到需要操作的同一个K的另一个V
+* 注意：分区内合并的函数和分区间合并函数都是func这同一个  
+### 7. reduceByKey（基于combineByKey实现）
+  * 源码API:
+```scala
+def reduceByKey(func : org.apache.spark.api.java.function.Function2[V, V, V]) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def reduceByKey(partitioner : org.apache.spark.Partitioner, func : org.apache.spark.api.java.function.Function2[V, V, V]) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+//合并本地数据（传入的参数map）
+def reduceByKeyLocally(func : org.apache.spark.api.java.function.Function2[V, V, V]) : java.util.Map[K, V] = { /* compiled code */ }
+```
+* func：同一K的所有V合并函数
+  #### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/FoldByKey.java) 
+```java
+JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+JavaPairRDD<String, String> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, String>(s, s+"1"));
+JavaPairRDD<String, String> RDD3 = RDD2.reduceByKey((s1,s2)->s1+"_"+s2);
+System.out.println("reduceByKey：" + RDD3.collect());
+---------------------------结果----------------------
+[(6,61_61), (3,31), (4,41_41), (7,71), (1,11), (8,81), (2,21)]
+```
