@@ -239,4 +239,130 @@ cogroup也可以多个进行分组
 ```
 出参说明：
 * 1.出参是一个JavaPairRDD，K是RDD中的K
-* 2.value是一个Tuple对象，在sacala中Tuple对象可以存N个值，对应的类我TupleN，在这个Tuple中，每个参与cogroup计算的RDD，会按照入参的先后顺序，列出和K对应的所有值的Iterable对象，当然调用该方法的RDD肯定是放在第一个
+* 2.value是一个Tuple对象，在sacala中Tuple对象可以存N个值，对应的类我TupleN，在这个Tuple中，每个参与cogroup计算的RDD，会按照入参的先后顺序，列出和K对应的所有值的Iterable对象，当然调用该方法的RDD肯定是放在第一个  
+### 11. subtractByKey(基于cogroup实现）：
+* 源码API:
+```scala
+def subtractByKey[W](other : org.apache.spark.api.java.JavaPairRDD[K, W]) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def subtractByKey[W](other : org.apache.spark.api.java.JavaPairRDD[K, W], numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+def subtractByKey[W](other : org.apache.spark.api.java.JavaPairRDD[K, W], p : org.apache.spark.Partitioner) : org.apache.spark.api.java.JavaPairRDD[K, V] = { /* compiled code */ }
+```
+* 删除原RDD中K在入参RDD中存在相同K的数据
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/SubtractByKey.java) 
+```java
+@Test
+    public void subtractByKey() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, Integer> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, Integer>(s, 1));
+        JavaRDD<String> RDD3 = javaSparkContext.parallelize(Arrays.asList("2", "3", "6", "7", "6"));
+        JavaPairRDD<String, Integer> RDD4 = RDD3.mapToPair(s -> new Tuple2<String, Integer>(s, 1));
+        JavaPairRDD<String, Integer> RDD5 = RDD2.subtractByKey(RDD4);
+        System.out.println("subtractByKey：" + RDD5.collect());
+    }RDD4);
+System.out.println("groupByKey：" + RDD5.collect());
+---------------------结果-----------------
+[(1,1), (4,1), (4,1), (8,1)]
+```
+### 12. join(基于cogroup实现）：
+* 源码API:
+```scala
+def join[W](other : org.apache.spark.api.java.JavaPairRDD[K, W]) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[V, W]] = { /* compiled code */ }
+def join[W](other : org.apache.spark.api.java.JavaPairRDD[K, W], numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[V, W]] = { /* compiled code */ }
+```
+* 类型sql的内联操作，将K相同的数据放在一起,存入Tuple2对象中，对象中第一个值是原RDD的V，第二个值是参数RDD的V
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/Join.java) 
+```java
+@Test
+    public void join() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, Integer> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, Integer>(s, 1));
+        JavaRDD<String> RDD3 = javaSparkContext.parallelize(Arrays.asList("2", "3", "6", "7", "6"));
+        JavaPairRDD<String, Integer> RDD4 = RDD3.mapToPair(s -> new Tuple2<String, Integer>(s, 2));
+        JavaPairRDD<String, Tuple2<Integer, Integer>> RDD5 = RDD2.join(RDD4);
+        System.out.println("join：" + RDD5.collect());
+    }
+-------------------结果-----------------
+[(6,(1,2)), (6,(1,2)), (6,(1,2)), (6,(1,2)), (3,(1,2)), (7,(1,2)), (2,(1,2))]
+```
+### 13. leftOuterJoin(基于cogroup实现）：
+* 源码API:
+```scala
+def leftOuterJoin[W](other : org.apache.spark.api.java.JavaPairRDD[K, W]) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[V, org.apache.spark.api.java.Optional[W]]] = { /* compiled code */ }
+def leftOuterJoin[W](other : org.apache.spark.api.java.JavaPairRDD[K, W], numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[V, org.apache.spark.api.java.Optional[W]]] = { /* compiled code */ }
+```
+* 类型sql的左连接操作，将K相同的数据放在一起,存入Tuple2对象中，对象中第一个值是原RDD的V，第二个值是参数RDD的V，不过这里会使用org.apache.spark.api.java.Optional对象来包装入参RDD的V（主要是封装空值）
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/LeftOuterJoin.java) 
+```java
+    @Test
+    public void leftOuterJoin() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, Integer> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, Integer>(s, 1));
+        JavaRDD<String> RDD3 = javaSparkContext.parallelize(Arrays.asList("2", "3", "6", "7", "6"));
+        JavaPairRDD<String, Integer> RDD4 = RDD3.mapToPair(s -> new Tuple2<String, Integer>(s, 2));
+        JavaPairRDD<String, Tuple2<Integer, Optional<Integer>>> RDD5 = RDD2.leftOuterJoin(RDD4);
+        System.out.println("leftOuterJoin：" + RDD5.collect());
+    }
+-------------------结果---------------------------
+[(6,(1,Optional[2])), (6,(1,Optional[2])), (6,(1,Optional[2])),
+ (6,(1,Optional[2])),(3,(1,Optional[2])), (4,(1,Optional.empty)),
+ (4,(1,Optional.empty)), (7,(1,Optional[2])),(1,(1,Optional.empty)),
+  (8,(1,Optional.empty)), (2,(1,Optional[2]))]
+```
+### 14. rightOuterJoin(基于cogroup实现）：
+* 源码API:
+```scala
+def rightOuterJoin[W](other : org.apache.spark.api.java.JavaPairRDD[K, W]) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[org.apache.spark.api.java.Optional[V], W]] = { /* compiled code */ }
+def rightOuterJoin[W](other : org.apache.spark.api.java.JavaPairRDD[K, W], numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[org.apache.spark.api.java.Optional[V], W]] = { /* compiled code */ }
+```
+* 类型sql的右连接操作，将K相同的数据放在一起,存入Tuple2对象中，对象中第一个值是原RDD的V，第二个值是参数RDD的V，不过这里会使用org.apache.spark.api.java.Optional对象来包装原RDD的V（主要是封装空值）
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/RightOuterJoin.java) 
+```java
+    @Test
+    public void rightOuterJoin() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, Integer> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, Integer>(s, 1));
+        JavaRDD<String> RDD3 = javaSparkContext.parallelize(Arrays.asList("2", "3", "6", "7", "6"));
+        JavaPairRDD<String, Integer> RDD4 = RDD3.mapToPair(s -> new Tuple2<String, Integer>(s, 2));
+        JavaPairRDD<String, Tuple2<Optional<Integer>, Integer>> RDD5 = RDD2.rightOuterJoin(RDD4);
+        System.out.println("rightOuterJoin：" + RDD5.collect());
+    }
+-------------------结果---------------------------
+[(6,(Optional[1],2)), (6,(Optional[1],2)), (6,(Optional[1],2)), (6,(Optional[1],2)),
+ (3,(Optional[1],2)), (7,(Optional[1],2)), (2,(Optional[1],2))]
+```
+### 15. fullOuterJoin(基于cogroup实现）：
+* 源码API:
+```scala
+def rightOuterJoin[W](other : org.apache.spark.api.java.JavaPairRDD[K, W]) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[org.apache.spark.api.java.Optional[V], W]] = { /* compiled code */ }
+def rightOuterJoin[W](other : org.apache.spark.api.java.JavaPairRDD[K, W], numPartitions : scala.Int) : org.apache.spark.api.java.JavaPairRDD[K, scala.Tuple2[org.apache.spark.api.java.Optional[V], W]] = { /* compiled code */ }
+```
+* 类型sql的外连接（全连接）操作，将K相同的数据放在一起,存入Tuple2对象中，对象中第一个值是原RDD的V，第二个值是参数RDD的V，不过这里会使用org.apache.spark.api.java.Optional对象来包装原RDD的V和入参RDD的V（主要是封装空值）
+#### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/FullOuterJoin.java) 
+```java
+    @Test
+    public void fullOuterJoin() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+        JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
+        JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
+        JavaPairRDD<String, Integer> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, Integer>(s, 1));
+        JavaRDD<String> RDD3 = javaSparkContext.parallelize(Arrays.asList("2", "3", "6", "7", "6"));
+        JavaPairRDD<String, Integer> RDD4 = RDD3.mapToPair(s -> new Tuple2<String, Integer>(s, 2));
+        JavaPairRDD<String, Tuple2<Optional<Integer>, Optional<Integer>>> RDD5 = RDD2.fullOuterJoin(RDD4);
+        System.out.println("fullOuterJoin：" + RDD5.collect());
+    }
+-------------------结果---------------------------
+[(6,(Optional[1],Optional[2])), (6,(Optional[1],Optional[2])), (6,(Optional[1],Optional[2])), 
+(6,(Optional[1],Optional[2])), (3,(Optional[1],Optional[2])), (4,(Optional[1],Optional.empty)), 
+(4,(Optional[1],Optional.empty)), (7,(Optional[1],Optional[2])), (1,(Optional[1],Optional.empty)), 
+(8,(Optional[1],Optional.empty)), (2,(Optional[1],Optional[2]))]
+```
+## ⭐join总览：
+![](https://github.com/lk6678979/image/blob/master/spark/clipboard.png)  
