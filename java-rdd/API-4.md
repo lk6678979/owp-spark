@@ -56,12 +56,15 @@ def combineByKey[C](createCombiner : org.apache.spark.api.java.function.Function
 ```
 #### 编码测试，[前往JAVADEMO](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/src/main/java/com/owp/rdddemo/CombineByKey.java) 
 ```java
-  SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
+  @Test
+    public void combineByKey() {
+        SparkConf sparkConf = new SparkConf().setAppName("demo").setMaster("local").set("spark.executor.memory", "1g");
         JavaSparkContext javaSparkContext = new JavaSparkContext(sparkConf);
         JavaRDD<String> RDD1 = javaSparkContext.parallelize(Arrays.asList("1", "2", "3", "4", "4", "6", "7", "8", "6"), 3);
         JavaPairRDD<String, String> RDD2 = RDD1.mapToPair(s -> new Tuple2<String, String>(s, s + "1"));
         JavaPairRDD<String, String> RDD3 = RDD2.combineByKey(s -> s + "v", (s1, s2) -> s1 + "合并" + s2, (s1, s2) -> s1 + "分区" + s2);
         System.out.println("combineByKey：" + RDD3.collect());
+    }
 ------------------结果---------------
 [(6,61v分区61v), (3,31v), (4,41v合并41), (7,71v), (1,11v), (8,81v), (2,21v)]
 ```
