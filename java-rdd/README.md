@@ -6,4 +6,4 @@
 [5. API-3：coalesce，repartition，randomSplit，glom](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/API-3.md)  
 [6. ZIP：zip，zipPartition](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/zip.md)  
 [7. API-4：partitionBy，mapValues，flatMapValues，combineByKey，foldByKey，reduceByKey，groupByKey，sortByKey，cogroup，subtractByKey，join，leftOuterJoin，rightOuterJoin，fullOuterJoin](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/API-4.md)  
-[7. API-5：cache，persist，checkpoint](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/API-5.md)  
+[8. API-5：cache，persist，checkpoint](https://github.com/lk6678979/owp-spark/blob/master/java-rdd/API-5.md)  
